@@ -15,7 +15,7 @@ Set Primitive Projections.
 Set Universe Polymorphism.
 Unset Transparent Obligations.
 
-Reserved Infix "⨥" (at level 34, left associativity).
+Reserved Infix "⨥" (at level 50, left associativity).
 
 Section Superposition.
 
