@@ -51,3 +51,15 @@ Next Obligation.
     rewrite -> id_right, -> (to_zero_unique (to_zero ∘ from_zero) id).
     rewrite -> bimap_id_id; reflexivity.
 Defined.
+
+Lemma comp_through_zero_r `{T : @Zero C} {X Y Z : C} (f : Y ~> Z) : f ∘ through_zero ≈ (through_zero (X:=X) (Y:=Z)).
+Proof.
+    rewrite /through_zero; rewrite -> comp_assoc.
+    rewrite -> (zero_unique (f ∘ from_zero)); reflexivity.
+Qed.
+
+Lemma comp_through_zero_l `{T : @Zero C} {X Y Z : C} (f : X ~> Y) : through_zero ∘ f ≈ (through_zero (X:=X) (Y:=Z)).
+Proof.
+    rewrite /through_zero; rewrite <- comp_assoc.
+    rewrite -> to_zero_unique; reflexivity.
+Qed.

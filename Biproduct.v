@@ -58,6 +58,14 @@ Proof.
     reflexivity.
 Qed.
 
+Lemma biprod_compose `{_ : Biproduct} {X A B Y : C} (f : X ~> A) (g : X ~> B) (h : A ~> Y) (i : B ~> Y) : (h ∘ proj_l ⨥ i ∘ proj_r) ∘ (inj_l ∘ f ⨥ inj_r ∘ g) ≈ h ∘ f ⨥ i ∘ g.
+Proof.
+    rewrite -> sum_comp_l, -> !sum_comp_r, <- !comp_assoc, -> !(comp_assoc proj_l _ _), -> !(comp_assoc proj_r _ _).
+    rewrite <- proj_inj_l, <- proj_inj_r, <- proj_inj_lr, <- proj_inj_rl.
+    rewrite -> !id_left, -> !comp_through_zero_l, -> !comp_through_zero_r, <- !zero_unit_iso, -> (sum_comm unit), -> !sum_unit.
+    reflexivity.
+Qed.
+
 End Biproduct.
 
 Notation "a ⨁ b" := (@biprod _ _ _ _ a b).
