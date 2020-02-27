@@ -14,6 +14,7 @@ Require Import CatQM.Monoidal.
 Require Import CatQM.Biproduct.
 Require Import CatQM.Superposition.
 Require Import CatQM.Zero.
+Require Import CatQM.BigOps.
 
 Generalizable All Variables.
 Set Primitive Projections.
@@ -39,7 +40,7 @@ Class DaggerSymMonoidal := {
 }.
 
 Class DaggerBiproduct := {
-    dagger_biprod_structure :> @Dagger C;
+    dagger_biprod_structure :> DaggerSymMonoidal;
     superpos_structure :> @Superposition C;
     zero_structure :> @Zero C;
     biproduct_structure :> @Biproduct C superpos_structure zero_structure;
@@ -81,5 +82,10 @@ Proof.
     rewrite -> biprod_compose. rewrite -> !dagger_id, -> !id_left, -> !id_right.
     reflexivity.
 Qed.
+
+Definition prob `{_ : DaggerMonoidal} {A : C} (st : I ~> A) (ef : A ~> I) : scalar := st† ∘ ef† ∘ ef ∘ st.
+
+Definition completeEffects `{_ : DaggerBiproduct} {A : C} (f : nat -> A ~> I) (maxn : nat) :=
+    isometry (bigsum f maxn).
 
 End DaggerStructures.
