@@ -9,6 +9,7 @@ Require Export Category.Theory.
 Require Import Category.Lib.
 Require Export Category.Theory.Category.
 Require Import Category.Structure.Monoidal.Symmetric.
+Require Export CatQM.Notation.
 Require Export CatQM.Dagger.
 Require Import CatQM.Monoidal.
 Require Import CatQM.Biproduct.
@@ -87,5 +88,37 @@ Definition prob `{_ : DaggerMonoidal} {A : C} (st : I ~> A) (ef : A ~> I) : scal
 
 Definition completeEffects `{_ : DaggerBiproduct} {A : C} (f : nat -> A ~> I) (maxn : nat) :=
     isometry (bigsum f maxn).
+
+Definition dagger_kernel `{_ : @Dagger C} `{_ : @Zero C} {A B K : C} (k : K ~> A) (f : A ~> B) := (isometry k) *
+    (f ∘ k ≈ through_zero) *
+    (forall (X : C) (x : X ~> A), f ∘ x ≈ through_zero -> existsT (m : X ~> K), x ≈ k ∘ m). (* x factors through k *)
+
+Lemma kernel_of_isometry `{_ : @Dagger C} `{_ : @Zero C} {A B : C} (f : A ~> B) (f_isometry : isometry f) : dagger_kernel from_zero f.
+Proof.
+    do 2! construct.
+    + unfold isometry; rewrite -> (to_zero_unique _ id); reflexivity.
+    + apply zero_unique.
+    + exact to_zero.
+    + rewrite <- id_left, <- f_isometry, <- comp_assoc, -> X0. unfold through_zero.
+      rewrite -> comp_assoc, -> (zero_unique _ from_zero); reflexivity.
+Qed.
+
+Class DaggerKernels := {
+    ker_dagger_structure :> Dagger;
+    ker_zero_structure :> Zero;
+    ker {A B : C} (f : A ~> B) : existsT (K : C) (k : K ~> A), dagger_kernel k f
+}.
+
+Lemma nondegeneracy `{kernels : DaggerKernels} {A B : C} (f : A ~> B) : f† ∘ f ≈ through_zero -> f ≈ through_zero.
+Proof.
+    move => H.
+    set p := ker f†; move: p => [K [k [[ker_isom ker_zero] ker_factor]]].
+    move: (ker_factor _ _ H) => [m m_H].
+    rewrite -> m_H, <- (id_left m), <- ker_isom.
+    rewrite <- comp_assoc, <- m_H.
+    rewrite <- (dagger_involutive (k † ∘ f)), -> dagger_compose, -> dagger_involutive.
+    rewrite -> ker_zero, -> adjoint_zero, -> comp_through_zero_r.
+    reflexivity.
+Qed.
 
 End DaggerStructures.
