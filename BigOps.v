@@ -2,7 +2,7 @@ Set Warnings "-notation-overridden".
 
 Require Import Program.
 From Coq Require Import ssreflect.
-From mathcomp.ssreflect Require Import ssrnat ssrbool bigop fintype eqtype.
+From mathcomp.ssreflect Require Import ssrnat ssrbool bigop fintype finfun eqtype.
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
@@ -36,7 +36,7 @@ Qed.
 Definition ord_widen_succ (a : nat) (b : ordinal a) : ordinal (S a).
 Proof. case: b => m i; construct. exact (S m). exact i. Defined.
 
-Program Fixpoint biprodN' (n : nat) (X : ordinal (n.+1) -> obj[C]) : obj[C] :=
+Program Fixpoint biprodN' {n : nat} (X : ordinal (n.+1) -> obj[C]) : obj[C] :=
     match n with
     | O => (X ord0)
     | S n' => (X ord0) ⨁ (@biprodN' n' (fun k => X (ord_widen_succ k)))
@@ -53,7 +53,7 @@ Proof. reflexivity. Qed.
 Lemma biprod0' {X : ordinal 1 -> obj[C]} : (X ord0) = biprodN' (n:=0) X.
 Proof. reflexivity. Qed.
 
-Fixpoint inj_n' (maxn : nat) {X : ordinal (maxn.+1) -> obj[C]} (n : ordinal (maxn.+1)) : (X n) ~> biprodN' (n:=maxn) X.
+Fixpoint inj_n' {maxn : nat} {X : ordinal (maxn.+1) -> obj[C]} {n : ordinal (maxn.+1)} : (X n) ~> biprodN' (n:=maxn) X.
 Proof.
     move: X n.
     case: maxn => [X n //=|maxn X].
@@ -64,9 +64,9 @@ Proof.
         have -> : (Ordinal i) = (ord_widen_succ (Ordinal P)) by rewrite /ord_widen_succ ordinal_equality.
         exact (inj_r ∘ (@inj_n' maxn (fun k => X (ord_widen_succ k)) (Ordinal P))).
 Defined.
-Definition inj_n {maxn : nat} {X : C} (n : ordinal (maxn.+1)%N) : X ~> biprodN maxn X := @inj_n' maxn (fun _ => X) n.
+Definition inj_n {maxn : nat} {X} := @inj_n' maxn (fun _ => X).
 
-Fixpoint proj_n' (maxn : nat) {X : ordinal (maxn.+1) -> obj[C]} (n : ordinal (maxn.+1)) : biprodN' (n:=maxn) X ~> (X n).
+Fixpoint proj_n' {maxn : nat} {X : ordinal (maxn.+1) -> obj[C]} {n : ordinal (maxn.+1)} : biprodN' (n:=maxn) X ~> (X n).
 Proof.
     move: X n.
     case: maxn => [X n //=|maxn X].
@@ -81,7 +81,8 @@ Definition proj_n {maxn : nat} {X} := @proj_n' maxn (fun _ => X).
 
 Ltac done := cat_simpl.
 
-Definition bigsum {A : obj[C]} {B : nat -> obj[C]} (f : forall n : nat, A ~> (B n)) (maxn : nat) : A ~> @biprodN' maxn B :=
-  \big [sum/unit]_ (i in (ordinal maxn.+1%N)) ((inj_n' i) ∘ (f i)).
-
+Definition bigsum {maxn : nat} {A : obj[C]} {B : forall x : (ordinal (maxn.+1)), obj[C]}
+    (f : forall n : (ordinal (maxn.+1)), A ~> (@B n)) : A ~> biprodN' B :=
+    \big[sum/through_zero]_ (i < (maxn.+1)) (inj_n' ∘ (f i)).
 End BigOps.
+
