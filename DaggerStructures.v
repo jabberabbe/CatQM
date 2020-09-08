@@ -1,6 +1,7 @@
 Set Warnings "-notation-overridden".
 
 From Coq Require Import ssreflect.
+From mathcomp.ssreflect Require Import ssrnat fintype.
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
@@ -63,7 +64,7 @@ Proof.
         -> !(comp_assoc proj_r inj_l f), -> !(comp_assoc proj_r inj_r g);
     rewrite <- proj_inj_l, <- proj_inj_r, <- proj_inj_lr, <- proj_inj_rl, -> !id_left.
     rewrite -> !comp_through_zero_l, -> !comp_through_zero_r, <- !zero_unit_iso,
-        -> sum_unit, -> (sum_comm unit _), -> sum_unit.
+        -> sum_unit, -> (sum_comm (Superposition.unit)), sum_unit.
     reflexivity.
 Qed.
 
@@ -86,8 +87,8 @@ Qed.
 
 Definition prob `{_ : DaggerMonoidal} {A : C} (st : I ~> A) (ef : A ~> I) : scalar := st† ∘ ef† ∘ ef ∘ st.
 
-Definition completeEffects `{_ : DaggerBiproduct} {A : C} (f : nat -> A ~> I) (maxn : nat) :=
-    isometry (bigsum f maxn).
+Definition completeEffects `{_ : DaggerBiproduct} {A : C} {maxn : nat} (f : ordinal (maxn.+1)%N -> A ~> I) :=
+    isometry (bigsum f).
 
 Definition dagger_kernel `{_ : @Dagger C} `{_ : @Zero C} {A B K : C} (k : K ~> A) (f : A ~> B) := (isometry k) *
     (f ∘ k ≈ through_zero) *
@@ -122,3 +123,4 @@ Proof.
 Qed.
 
 End DaggerStructures.
+
