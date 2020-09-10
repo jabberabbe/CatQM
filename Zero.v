@@ -63,3 +63,4 @@ Proof.
     rewrite /through_zero; rewrite <- comp_assoc.
     rewrite -> to_zero_unique; reflexivity.
 Qed.
+

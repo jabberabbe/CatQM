@@ -48,3 +48,4 @@ Qed.
 End Superposition.
 
 Notation "a ⨥ b" := (@sum _ _ _ _ a b).
+

@@ -149,3 +149,4 @@ Proof.
 Qed.
 
 End Monoidal.
+

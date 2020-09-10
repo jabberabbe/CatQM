@@ -79,3 +79,4 @@ Qed.
 End Dagger.
 
 Notation "f †" := (@dagger _ _ _ _ f) (at level 7).
+
