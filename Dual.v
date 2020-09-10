@@ -154,98 +154,109 @@ Proof.
     exact (unit_left ∘ eps ⨂ id ∘ tensor_assoc⁻¹ ∘ id ⨂ eta ∘ unit_right⁻¹).
     exact (unit_left ∘ eps ⨂ id ∘ tensor_assoc⁻¹ ∘ id ⨂ eta ∘ unit_right⁻¹).
     all: apply double_snake_l.
- Qed.
+Qed.
 
-(*
-Open Scope object.
-Lemma left_dual_unique {L L' R : C} {dual : Dual L R} {dual' : Dual L' R} : L ≈ L'.
+Lemma left_dual_iso {L L' R : C} {dual : Dual L R} (iso : L ≈ L') : Dual L' R.
 Proof.
-    have q : (id ⨂ tensor_assoc⁻¹) ∘ (id ⨂ tensor_assoc) ≈ id
-        by move => o'1 o'2 o'3 o'4; rewrite <- interchange_law, -> id_right, -> iso_from_to, -> bimap_id_id; reflexivity.
-    have inv_pentagon_identity : (id ⨂ tensor_assoc⁻¹) ∘ tensor_assoc ≈ tensor_assoc ∘ (tensor_assoc ⨂ id) ∘ tensor_assoc⁻¹.
-        move => o1 o2 o3 o4.
-        rewrite <- id_right, <- (iso_to_from tensor_assoc), -> !comp_assoc. symmetry.
-        rewrite <- id_left, <- q. rewrite -> comp_assoc, <- (comp_assoc _ (id ⨂ tensor_assoc) _), -> (comp_assoc _ tensor_assoc _).
-        rewrite -> pentagon_identity, -> !comp_assoc; reflexivity.
     construct.
-    + exact (unit_left ∘ unit_right ∘ (eps ⨂ id) ⨂ id ∘ tensor_assoc⁻¹ ⨂ id ∘ (id ⨂ eta) ⨂ id ∘ unit_right⁻¹ ∘ unit_right⁻¹).
-    + exact (unit_left ∘ unit_left ∘ id ⨂ (eps ⨂ id) ∘ id ⨂ tensor_assoc⁻¹ ∘ tensor_assoc ∘ (id ⨂ id) ⨂ eta ∘ unit_right⁻¹ ∘ unit_left⁻¹).
-    +  have iso : exists (f : (L ⨂ I) ⨂ I ~> (I ⨂ L') ⨂ I) (g : (I ⨂ L') ⨂ I ~> I ⨂ I ⨂ L),
-        (g ∘ f ≈ unit_left⁻¹ ∘ unit_left⁻¹ ∘ unit_right ∘ unit_right) *
-        (f ∘ unit_right⁻¹ ∘ unit_right⁻¹ ∘ unit_left ∘ unit_left ∘ g ≈ id); last first.
-        - destruct iso. destruct s. destruct p. move: x x0 e e0 => f g h h'.
-        + exact (unit_left ∘ unit_right ∘ f ∘ unit_right⁻¹ ∘ unit_right⁻¹).
-        + exact (unit_left ∘ unit_left ∘ g ∘ unit_right⁻¹ ∘ unit_left⁻¹).
-        + admit.
-        + admit.
-    - construct; last construct; last construct. Open Scope morphism.
-        + exact (((eps ⨂ id) ⨂ id) ∘ (tensor_assoc⁻¹ ⨂ id) ∘ ((id ⨂ eta) ⨂ id)).
-        + exact (id ⨂ (eps ⨂ id) ∘ (id ⨂ tensor_assoc⁻¹) ∘ tensor_assoc ∘ (id ⨂ id) ⨂ eta).
-        + have h1 : (id{C} ⨂ id{C}) ⨂ (@eta _ _ dual) ∘ (eps ⨂ id{C}) ⨂ id{C} ∘ tensor_assoc⁻¹ ⨂ id{C} ≈
-          (((eps ⨂ id) ⨂ id ∘ (tensor_assoc⁻¹ ⨂ id) ∘ (id ⨂ id) ⨂ eta) : (L ⨂ (R ⨂ L')) ⨂ I ~> (I ⨂ L') ⨂ (R ⨂ L)).
-            rewrite <- !interchange_law, -> !bimap_id_id, -> !id_right, -> !id_left; reflexivity.
-        rewrite <- !comp_assoc, -> (comp_assoc ((id{C} ⨂ id{C}) ⨂ eta) _ _), -> (comp_assoc _ (tensor_assoc⁻¹ ⨂ id{C}) _).
-        rewrite -> h1.
-        have h2 : (id{C} ⨂ id{C}) ⨂ eta ∘ (id{C} ⨂ eta) ⨂ id{C} ≈
-          ((id ⨂ eta) ⨂ id ∘ (id ⨂ id) ⨂ eta : (L ⨂ I) ⨂ I ~> (L ⨂ (R ⨂ L')) ⨂ (R ⨂ L)).
-            rewrite <- !interchange_law, -> !id_right, -> !id_left; reflexivity.
-        rewrite <- (comp_assoc _ ((id ⨂ id) ⨂ eta) _). rewrite -> h2.
-        have h3 : (id{C} ⨂ eps ⨂ id{C} ∘ id{C} ⨂ tensor_assoc⁻¹ ∘ tensor_assoc ∘ (eps ⨂ id{C}) ⨂ id{C} ∘ tensor_assoc⁻¹ ⨂ id{C}) ≈
-          (tensor_assoc ∘ (eps ⨂ eps ∘ tensor_assoc ∘ tensor_assoc⁻¹ ⨂ id{C}) ⨂ id{C} ∘ tensor_assoc⁻¹ : ((L ⨂ (R ⨂ L')) ⨂ (R ⨂ L)) ~> I ⨂ I ⨂ L).
-            rewrite <- (comp_assoc _ _ tensor_assoc).
-            rewrite -> inv_pentagon_identity.
-            rewrite <- (comp_assoc tensor_assoc), -> (comp_assoc _ tensor_assoc _), -> to_tensor_assoc_natural.
-            rewrite <- !comp_assoc, -> (comp_assoc tensor_assoc⁻¹ _ _ ).
-            rewrite <- bimap_id_id. Check from_tensor_assoc_natural. rewrite <- from_tensor_assoc_natural.
-            rewrite <- !comp_assoc. rewrite <- from_tensor_assoc_natural.
-            rewrite -> (comp_assoc _ (tensor_assoc ⨂ id) _), <- interchange_law.
-            rewrite -> (comp_assoc _ (((eps ⨂ id{C}) ⨂ id{C}) ⨂ id{C}) _), <- interchange_law.
-            rewrite -> (comp_assoc _ _ tensor_assoc⁻¹), <- interchange_law.
-            rewrite <- (comp_assoc _ tensor_assoc _), <- to_tensor_assoc_natural.
-            rewrite -> bimap_id_id, -> !comp_assoc, <- interchange_law, -> id_left, -> !id_right. reflexivity.
-          (*
-          rewrite <- (comp_assoc _ _ ((id{C} ⨂ id{C} ⨂ eps) ⨂ id{C})), <- interchange_law, <- from_tensor_assoc_natural.
-          rewrite <- bimap_id_id, -> to_tensor_assoc_natural.
-          rewrite <- (comp_assoc _ ((id{C} ⨂ tensor_assoc) ⨂ id{C}) _), <- interchange_law.
-          rewrite <- (comp_assoc (tensor_assoc ∘ (eps ⨂ id{C}) ⨂ id{C}) _ _ ), <- interchange_law.
-          rewrite <- (comp_assoc tensor_assoc _ _), <- interchange_law, -> !comp_assoc, -> !id_left, -> bimap_id_id.
-          have inv_pentagon_identity' : tensor_assoc⁻¹ ∘ id{C} ⨂ tensor_assoc ∘ tensor_assoc ≈ tensor_assoc ∘ tensor_assoc⁻¹ ⨂ id{C}.
-              admit.
-          rewrite <- interchange_law, <- (comp_assoc _ tensor_assoc⁻¹ _), <- (comp_assoc _ _ tensor_assoc).
-          rewrite -> inv_pentagon_identity', -> !comp_assoc, -> id_left, id_right. reflexivity. 
-          *)
+    + exact (id ⨂ iso ∘ eta).
+    + exact (eps ∘ iso⁻¹ ⨂ id).
+    + rewrite <- (id_left id[L']), -> interchange_law, <- (comp_assoc _ _ tensor_assoc⁻¹).
+      rewrite -> from_tensor_assoc_natural, -> comp_assoc, <- (comp_assoc _ (iso⁻¹ ⨂ id{C} ⨂ id{C}) _).
+      rewrite <- interchange_law, -> bimap_id_id, -> !id_right, -> id_left.
+      rewrite <- (id_left iso⁻¹), <- (id_right (id{C} ⨂ iso ∘ eta)), -> interchange_law, -> comp_assoc.
+      rewrite <- (id_left id[L]), -> interchange_law, -> comp_assoc, <- (comp_assoc _ tensor_assoc⁻¹ _), <- from_tensor_assoc_natural, -> comp_assoc.
+      rewrite -> bimap_id_id, <- interchange_law, -> id_left, -> id_right, <- (id_right iso), <- (id_left eps), -> interchange_law.
+      do 2! [rewrite <- (comp_assoc (id ⨂ iso))]; rewrite -> dual_id_l, -> comp_assoc.
+      rewrite -> from_unit_left_natural, <- comp_assoc, <- to_unit_right_natural.
+      rewrite -> comp_assoc, <- (comp_assoc _ iso _), -> iso_to_from, -> id_right.
+      reflexivity.
+    + rewrite <- (id_left id[R]), -> !interchange_law, <- (comp_assoc _ _ tensor_assoc), -> to_tensor_assoc_natural.
+      rewrite -> !comp_assoc, -> id_left, <- (comp_assoc _ ((id{C} ⨂ iso⁻¹) ⨂ id{C})), <- interchange_law, <- interchange_law.
+      rewrite -> iso_from_to, -> id_right, -> !bimap_id_id, -> id_right.
+      apply dual_id_r.
+Qed.
 
-        rewrite -> !comp_assoc. rewrite -> h3.
-        rewrite <- comp_assoc, <- !interchange_law.
-        rewrite <- (comp_assoc tensor_assoc _ _ ). rewrite <- (id_right id[L]). rewrite -> (interchange_law).
-        rewrite <- (comp_assoc _ _ tensor_assoc⁻¹).
-        rewrite -> from_tensor_assoc_natural.
-        rewrite -> (comp_assoc _ tensor_assoc⁻¹), -> !(comp_assoc tensor_assoc _ _ ). rewrite <- (id_right id).
-        rewrite -> interchange_law, -> comp_assoc, <- to_tensor_assoc_natural.
-        have inv_pentagon_identity' : tensor_assoc ∘ tensor_assoc ⨂ id{C} ∘ tensor_assoc⁻¹ ≈ id ⨂ tensor_assoc⁻¹ ∘ tensor_assoc.
-            move => o0 o1 o2 o3;
-            rewrite <- id_left, <- q, <- comp_assoc, -> !(comp_assoc (id{C} ⨂ tensor_assoc)).
-            rewrite -> pentagon_identity.
-            rewrite <- comp_assoc, -> iso_to_from, -> id_right; reflexivity.
-        rewrite <- (comp_assoc _ tensor_assoc _), <- (comp_assoc _ _ tensor_assoc⁻¹).
-        rewrite <- (comp_assoc tensor_assoc _ _), -> (comp_assoc _ tensor_assoc _), <- (comp_assoc _ _ (tensor_assoc⁻¹ ⨂ id{C} ⨂ (id{C} ∘ id{C}))).
-        rewrite -> to_tensor_assoc_natural.
-        rewrite <- (comp_assoc _ tensor_assoc⁻¹ _), <- from_tensor_assoc_natural.
-        rewrite -> !comp_assoc, -> !id_right.
-        Require Import Category.Structure.Monoidal.Proofs.
-        symmetry. rewrite <- comp_assoc, <- comp_assoc, -> (comp_assoc _ unit_right _).
-        rewrite <- dual_id_l. rewrite <- bimap_id_id.
-        rewrite <- id_unit_right.
-        rewrite <- id_unit_right.
-        rewrite <- from_tensor_assoc_natural.
-        rewrite -> inv_pentagon_identity'.
-        rewrite <- (comp_assoc (eps ⨂ eps ⨂ id{C}) _ _), <- (comp_assoc _ tensor_assoc _).
-        rewrite <- to_tensor_assoc_natural.
-        admit.
-        rewrite <- !interchange_law, -> !id_left, -> !id_right. rewrite -> dual_id_l.
-        + admit.
-Admitted.
-*)
+Lemma right_dual_iso {L R R' : C} {dual : Dual L R} (iso : R ≈ R') : Dual L R'.
+Proof.
+    construct.
+    + exact (iso ⨂ id ∘ eta).
+    + exact (eps ∘ id ⨂ iso⁻¹).
+    + rewrite <- (id_left id[L]), -> !interchange_law, <- (comp_assoc _ _ tensor_assoc⁻¹), -> from_tensor_assoc_natural.
+      rewrite <- !comp_assoc, -> id_left, -> (comp_assoc _ (id{C} ⨂ iso ⨂ id{C}) _), <- interchange_law, <- (interchange_law (g:=iso⁻¹) (f:=iso)).
+      rewrite -> iso_from_to, -> id_right, -> !bimap_id_id, -> id_left, -> comp_assoc.
+      apply dual_id_l.
+    + rewrite <- (id_left id[R']), -> interchange_law, <- (comp_assoc _ _ tensor_assoc).
+      rewrite -> to_tensor_assoc_natural, -> comp_assoc, <- (comp_assoc _ ((id{C} ⨂ id{C}) ⨂ iso⁻¹) _).
+      rewrite <- interchange_law, -> bimap_id_id, -> !id_right, -> id_left.
+      rewrite <- (id_left iso⁻¹), <- (id_right (iso ⨂ id ∘ eta)), -> interchange_law, -> comp_assoc.
+      rewrite <- (id_left id[R]), -> interchange_law, -> comp_assoc, <- (comp_assoc _ tensor_assoc _), <- to_tensor_assoc_natural, -> comp_assoc.
+      rewrite -> bimap_id_id, <- interchange_law, -> id_left, -> id_right, <- (id_right iso), <- (id_left eps), -> interchange_law.
+      do 2! [rewrite <- (comp_assoc (iso ⨂ id) _ _)]; rewrite -> dual_id_r, -> comp_assoc.
+      rewrite -> from_unit_right_natural, <- comp_assoc, <- to_unit_left_natural.
+      rewrite -> comp_assoc, <- (comp_assoc _ iso _), -> iso_to_from, id_right.
+      reflexivity.
+Qed.
+
+Lemma eps_map_unique {L R : C} {dual dual' : Dual L R} (eta_iso : (@eta L R dual) ≈ (@eta L R dual')) : (@eps L R dual) ≈ (@eps L R dual').
+Proof.
+    rewrite <- (id_right eps), <- bimap_id_id, <- (iso_to_from (y:=L) unit_left).
+    rewrite <- (id_right unit_left⁻¹), <- (iso_to_from unit_right), -> (comp_assoc unit_left⁻¹ _ _), <- dual_id_l.
+    rewrite <- (id_right id[R]), -> interchange_law, -> triangle_identity_left, -> !comp_assoc, -> to_unit_left_natural.
+    rewrite <- (id_right id[R]), <- (id_right id[R]), <- !(comp_assoc _ _ unit_right⁻¹), -> !interchange_law, -> !comp_assoc, <- (comp_assoc _ tensor_assoc _), <- to_tensor_assoc_natural, -> comp_assoc, -> bimap_id_id, <- (comp_assoc _ (id ⨂ eps) _).
+    rewrite <- interchange_law, -> id_left, -> id_right, <- (id_left (@eps L R dual)), <- (id_right (@eps L R dual')), -> interchange_law.
+    have by_pentagon_identity : tensor_assoc ∘ tensor_assoc⁻¹ ⨂ id ≈ tensor_assoc⁻¹ ∘ id ⨂ tensor_assoc ∘ tensor_assoc.
+        move => a b c d. symmetry.
+        rewrite <- id_left, <- (iso_to_from tensor_assoc).
+        rewrite -> !comp_assoc, <- (comp_assoc _ tensor_assoc⁻¹ tensor_assoc⁻¹), <- inverse_pentagon_identity.
+        rewrite -> (comp_assoc _ _ (id ⨂ tensor_assoc⁻¹)), <- (comp_assoc _ (id ⨂ tensor_assoc⁻¹) (id ⨂ tensor_assoc)),
+            <- interchange_law, -> iso_from_to, -> id_left, -> bimap_id_id, -> id_right.
+        rewrite -> comp_assoc, <- (comp_assoc _ tensor_assoc⁻¹ tensor_assoc), -> iso_from_to, -> id_right.
+        reflexivity.
+    rewrite <- (comp_assoc _ tensor_assoc _), -> by_pentagon_identity, -> (comp_assoc unit_left _ _), <- (comp_assoc _ (id ⨂ eps) _), -> !(comp_assoc (id ⨂ eps) _ _), <- bimap_id_id, -> from_tensor_assoc_natural.
+    rewrite <- (comp_assoc (unit_left ∘ eps ⨂ id{C}) _ _), <- (comp_assoc _ tensor_assoc _), <- to_tensor_assoc_natural, -> (comp_assoc _ _ tensor_assoc), <- !(comp_assoc tensor_assoc⁻¹ _ _), <- !interchange_law, -> !id_right.
+    rewrite <- eta_iso, -> (@dual_id_r L R dual).
+    have by_triangle_identity : tensor_assoc⁻¹ ∘ id ⨂ unit_right⁻¹ ≈ unit_right⁻¹.
+        move => o1 o2.
+        rewrite <- id_left, <- (iso_from_to unit_right), -> comp_assoc, <- (comp_assoc _ unit_right _), <- triangle_identity_right.
+        rewrite <- comp_assoc, <- interchange_law, -> iso_to_from, -> id_right, -> bimap_id_id, -> id_right.
+        reflexivity.
+    rewrite <- (id_left id[L]), -> interchange_law, <- (comp_assoc _ _ tensor_assoc), <- triangle_identity, -> (comp_assoc tensor_assoc⁻¹ _ _), -> by_triangle_identity.
+    rewrite <- (comp_assoc unit_left _ _), -> (comp_assoc _ unit_right⁻¹ _), -> from_unit_right_natural.
+    rewrite -> !comp_assoc, -> unit_identity, -> iso_to_from, -> id_right, -> id_left, <- comp_assoc, <- interchange_law, -> iso_to_from, -> id_right. reflexivity.
+Qed.
+
+Lemma eta_map_unique {L R : C} {dual dual' : Dual L R} (eps_iso : (@eps L R dual) ≈ (@eps L R dual')) : (@eta L R dual) ≈ (@eta L R dual').
+Proof.
+    rewrite <- (id_left eta), <- bimap_id_id, <- (iso_to_from (y:=R) unit_left).
+    rewrite <- (id_left unit_left), <- (iso_to_from unit_right), <- (comp_assoc unit_right _ _), <- dual_id_r.
+    rewrite <- (id_left id[L]), <- (id_left id[L]), <- (id_left id[L]), -> !(comp_assoc unit_right _ _), <- (comp_assoc _ (eta ⨂ id{C}) _), -> !interchange_law, -> id_right.
+    have by_triangle_identity : unit_left⁻¹ ⨂ id ≈ tensor_assoc⁻¹ ∘ unit_left⁻¹.
+        move => a b.
+        rewrite <- id_right, <- (iso_to_from (y:=(a ⨂ b)) unit_left), <- (id_right unit_left), <- (iso_to_from (y:=(I ⨂ a ⨂ b)) tensor_assoc).
+        rewrite -> (comp_assoc unit_left _ _), <- triangle_identity_left, -> !comp_assoc, <- interchange_law, -> iso_from_to. cat.
+    rewrite -> by_triangle_identity, <- !(comp_assoc _ _ eta), -> (comp_assoc _ tensor_assoc⁻¹ _), <- from_unit_left_natural, -> from_tensor_assoc_natural.
+    rewrite -> (comp_assoc _ (id{C} ⨂ eta) _), <- (comp_assoc _ _ (id{C} ⨂ eta)).
+    rewrite <- (interchange_law (f:=id) (h:=eta)), -> bimap_id_id, -> id_left, -> id_right, <- (id_left (@eta L R dual')), <- (id_right (@eta L R dual)), -> interchange_law, <- bimap_id_id.
+    have by_pentagon_identity : tensor_assoc ⨂ id ∘ tensor_assoc⁻¹ ≈ tensor_assoc⁻¹ ∘ id ⨂ tensor_assoc⁻¹ ∘ tensor_assoc.
+        move => a b c d. symmetry.
+        rewrite <- id_left, <- bimap_id_id, <- (iso_to_from tensor_assoc), <- (id_left id[d]), -> interchange_law.
+        rewrite <- comp_assoc, -> !(comp_assoc (tensor_assoc⁻¹ ⨂ id{C}) _ _), -> inverse_pentagon_identity.
+        rewrite <- comp_assoc, -> iso_from_to; cat.
+    rewrite -> !comp_assoc, <- (comp_assoc _ _ tensor_assoc⁻¹), -> by_pentagon_identity.
+    rewrite -> !comp_assoc, <- (comp_assoc _ _ tensor_assoc⁻¹), <- (comp_assoc _ tensor_assoc _).
+    rewrite -> from_tensor_assoc_natural, <- to_tensor_assoc_natural.
+    rewrite -> !comp_assoc, <- (comp_assoc _ _ (id ⨂ tensor_assoc⁻¹)), <- (comp_assoc _ _ (id ⨂ id ⨂ eta)).
+    rewrite <- !interchange_law, -> !id_left.
+    rewrite <- eps_iso, -> (@dual_id_l L R dual).
+    have by_triangle_identity' : tensor_assoc⁻¹ ∘ id ⨂ unit_left⁻¹ ≈ unit_right⁻¹ ⨂ id.
+        move => o1 o2. symmetry.
+        rewrite <- id_right, <- bimap_id_id, <- (id_left id[o1]), <- (iso_to_from unit_left), -> interchange_law, -> inverse_triangle_identity.
+        normal; rewrite -> iso_to_from, -> iso_from_to; cat.
+    rewrite <- (id_left id[R]), -> interchange_law, -> comp_assoc, <- (comp_assoc _ _ (id{C} ⨂ unit_left⁻¹)), <- (comp_assoc _ _ tensor_assoc), -> by_triangle_identity', <- bimap_triangle_right.
+    rewrite <- (comp_assoc _ unit_right _), <- to_unit_right_natural, -> comp_assoc, <- (comp_assoc _ _ unit_left⁻¹), <- unit_identity, <- interchange_law, -> !iso_to_from.
+    normal. reflexivity.
+Qed.
 
 End Dual.
 
@@ -254,3 +265,4 @@ Class Compact `{C : Category} := {
     dual : C -> C;
     dual_witness : forall X : C, Dual X (dual X)
 }.
+
